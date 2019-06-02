@@ -1,12 +1,9 @@
 
 import sys
 sys.path.append("/users/gustavomarquez/Desktop/rays_updates")
+sys.path.append("/home/gusmar/rays_updates/mlb_daily_sms")
 
 import datetime
-
-from datautils.datetime_help import _convert_timestamp_datetime,\
-                                    _convert_datestr_datetime,\
-                                    _convert_to_est
 
 from datautils.game_details import get_teams_games_today
 
