@@ -6,8 +6,8 @@
 #
 #================================================================#
 
-import sys
-sys.path.append("/users/gustavomarquez/Desktop/rays_updates")
+#import sys
+#sys.path.append("/users/gustavomarquez/Desktop/rays_updates")
 import datetime
 from dateutil import tz
 
@@ -15,7 +15,7 @@ from dateutil import tz
 
 def _convert_timestamp_datetime(game_datetime):
     time_convert = _convert_to_est(datetime.datetime.strptime(
-        game_datetime,"%Y-%m-%dT%H:%M:%S%z"))
+        game_datetime,"%Y-%m-%dT%H:%M:%SZ"))
 
     return time_convert
 

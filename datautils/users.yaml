@@ -1,0 +1,20 @@
+{
+"user_1":{
+  "name":"Gus",
+  "teams":"Rays",
+  "Pitcher_Notes":"True",
+  "Previous_game":"False",
+  "GameOdds":"False",
+  "TZ":"America/New_York",
+  "phone_number":"GUS_PHONE_NUMBER"
+  },
+"user_2":{
+  "name":"Ian",
+  "teams":"Yankees",
+  "Pitcher_Notes":"True",
+  "Previous_game":"False",
+  "GameOdds":"False",
+  "TZ":"America/New_York",
+  "phone_number":"IAN_PHONE_NUMBER"
+  }
+}
