@@ -39,7 +39,5 @@ class GameToday():
 def main():
     game = GameToday()
 
-    print(user_data)
-
 if __name__=='__main__':
 	main()
