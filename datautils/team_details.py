@@ -23,10 +23,13 @@ def grab_active_teams(season=datetime.now().year,activeStatus='Y',
     return active_teams['teams']
 
 
-def pull_interest_teamInfo():
+def pull_interest_teamInfo(**kwargs):
     team_names = _extract_user_interest_teams()
     error_msg = 'Teams not found'
-    all_teams = grab_active_teams()
+    try:
+         all_teams = kwargs['team_list']
+    except:
+        all_teams = grab_active_teams()
     key_teams = _extract_team_from_team_list(all_teams,team_names)
     if key_teams:
         return key_teams
@@ -34,9 +37,12 @@ def pull_interest_teamInfo():
     return error_msg
 
 
-def user_data_team_details():
+def user_data_team_details(**kwargs):
     user_data = get_user_data()
-    all_teams = pull_interest_teamInfo()
+    try:
+        all_teams = pull_interest_teamInfo(team_list = kwargs['team_list'])
+    except:
+        all_teams = pull_interest_teamInfo()
 
     if all_teams != 'Teams not found':
         for user in user_data:

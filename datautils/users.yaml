@@ -3,7 +3,9 @@
   "name":"Gus",
   "teams":"Rays",
   "Pitcher_Notes":"True",
-  "Previous_game":"False",
+  "Previous_game":"True",
+  "Last_10_games":"False",
+  "Standings":"False",
   "GameOdds":"False",
   "TZ":"America/New_York",
   "phone_number":"GUS_PHONE_NUMBER"
@@ -12,7 +14,9 @@
   "name":"Ian",
   "teams":"Yankees",
   "Pitcher_Notes":"True",
-  "Previous_game":"False",
+  "Previous_game":"True",
+  "Last_10_games":"False",
+  "Standings":"False",
   "GameOdds":"False",
   "TZ":"America/New_York",
   "phone_number":"IAN_PHONE_NUMBER"

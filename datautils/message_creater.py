@@ -1,9 +1,28 @@
 from datautils.alerter import send_sms
 
-from datautils.game_details import get_game_details
+from datautils.game_details import get_today_yesterday_games,\
+                                    _create_team_opponent
+
+from datautils.datetime_help import _gametime_message_handler
+
+def previous_game_msg(game,team_opponent):
+    if team_opponent['team']['isWinner']:
+        msg = 'Yesterday, the %s beat the %s %s to %s.'\
+            % (team_opponent['team']['name'],
+                team_opponent['opponent']['name'],
+                team_opponent['team']['score'],
+                team_opponent['opponent']['score'])
+    else:
+        msg = 'Yesterday, the %s lost to the %s %s to %s.'\
+            % (team_opponent['team']['name'],
+                team_opponent['opponent']['name'],
+                team_opponent['team']['score'],
+                team_opponent['opponent']['score'])
+
+    return msg
 
 
-def next_game_alert_setup(game,user):
+def next_game_alert_setup(game,user_data,team_opponent):
     """
     provides the final message that will go out via twilia
     input:
@@ -11,73 +30,62 @@ def next_game_alert_setup(game,user):
         user: dictionary of user information
         int_both: boolean flag for when both teams are interest teams
     """
-    if game['home_team']['interest_team'] or (game['home_team']['interest_team'] and\
-        game['away_team']['interest_team']):
+    intro_msg = set_intro_msg(game,team_opponent)
 
-        team = game['home_team']
-        opponent = game['away_team']
-    else:
-        team = game['away_team']
-        opponent = game['home_team']
+    starter_msg = set_probable_starter_msg(game,
+                            team_opponent,
+                            user_data['Pitcher_Notes'])
 
-    intro_msg = set_intro_msg(game,opponent,team)
+    msg = intro_msg + starter_msg['team_pitcher'] +\
+        starter_msg['opp_pitcher']
 
-    pp_notes = user['Pitcher_Notes']
-    if pp_notes == 'True':
-        pp_notes = True
-    else:
-        pp_notes = False
-    start_msgs = set_probable_starter_msg(game,opponent,team,pp_notes)
-
-    message = intro_msg + start_msgs['team_pitcher'] +\
-        start_msgs['opp_pitcher']
-
-    return message
+    return msg
 
 
-def set_intro_msg(game_details,opponent,team):
+def set_intro_msg(game_details,team_opponent):
     # where opponent and team will be the team details
-    team_dir = team['HomeAway']
-    intro_msg = """The %s (%s-%s) will be %s to%s against the %s (%s-%s): %s:%s at %s. """ %\
-        (team['name'],
-            team['wins'],
-            team['losses'],
-            team_dir,
+    team_dir = team_opponent['team']['HomeAway']
+    intro_msg = """ Today, the %s (%s-%s) will be %s to%s against the %s (%s-%s): %s at %s. """ %\
+        (team_opponent['team']['name'],
+            team_opponent['team']['wins'],
+            team_opponent['team']['losses'],
+            team_opponent['team']['HomeAway'],
             game_details['dayNight'],
-            opponent['name'],
-            opponent['wins'],
-            opponent['losses'],
-            game_details['gametime'].hour,
-            game_details['gametime'].minute,
+            team_opponent['opponent']['name'],
+            team_opponent['opponent']['wins'],
+            team_opponent['opponent']['losses'],
+            _gametime_message_handler(game_details['gametime']),
             game_details['venue']
         )
 
     return intro_msg
 
 
-def set_probable_starter_msg(game_details,opponent,team,notes_bool):
+def set_probable_starter_msg(game_details,team_opponent,notes_bool):
     probablePitcher_msg = {
         'opp_pitcher':'',
         'team_pitcher':''
     }
 
-    if opponent['probable_pitcher']:
+    if team_opponent['opponent']['probable_pitcher']:
         probablePitcher_msg['opp_pitcher'] = """The %s have %s on the hill""" %\
-            (opponent['name'],
-            opponent['probable_pitcher']
+            (team_opponent['opponent']['name'],
+            team_opponent['opponent']['probable_pitcher']
             )
         if notes_bool:
-            probablePitcher_msg['opp_pitcher'] += ": %s" % (opponent['pitcher_notes'])
+            probablePitcher_msg['opp_pitcher'] += ": %s" %\
+                (team_opponent['opponent']['pitcher_notes'])
         else:
             probablePitcher_msg['opp_pitcher'] += "."
 
-    if team['probable_pitcher']:
+    if team_opponent['team']['probable_pitcher']:
         probablePitcher_msg['team_pitcher'] = """The %s will throw %s""" %\
-            (team['name'],
-            team['probable_pitcher'])
+            (team_opponent['team']['name'],
+            team_opponent['team']['probable_pitcher'])
 
         if notes_bool:
-            probablePitcher_msg['team_pitcher'] += ": %s" % (team['pitcher_notes'])
+            probablePitcher_msg['team_pitcher'] += ": %s" %\
+                (team_opponent['team']['pitcher_notes'])
         else:
             probablePitcher_msg['team_pitcher'] += "."
 
@@ -86,20 +94,39 @@ def set_probable_starter_msg(game_details,opponent,team,notes_bool):
 
 def create_all_msgs(user_data,all_games):
     msg = {}
+    games = get_today_yesterday_games(all_games)
+
     for user in user_data:
         team_list = user_data[user]['team_details']
-        msg[user] = []
-        for game in all_games:
-            game_details = get_game_details(game,team_list)
+        msg[user] = {}
+        if games:
+            for item in games:
+                if games[item]:
+                    for game in games[item]:
+                        team_opponent = _create_team_opponent(game,user)
+                        if team_opponent:
+                            if item == 'yesterday':
+                                if user_data[user]['Previous_game']:
+                                    msg[user].update(
+                                            {item:previous_game_msg(game,
+                                                        team_opponent)})
+                            elif item =='today':
+                                msg[user].update(
+                                        {item:\
+                                        next_game_alert_setup(game,
+                                                        user_data[user],
+                                                        team_opponent)})
 
-            if game_details:
-                if game_details['home_team']['interest_team'] or\
-                    game_details['away_team']['interest_team']:
+    return_msg = final_msg(msg)
 
-                    msg[user].append(
-                        next_game_alert_setup(game_details,user_data[user])
-                    )
-            else:
-                msg[user].append()
+    return return_msg
 
-    return msg
+
+def final_msg(msg):
+    msg_final = {}
+    for user in msg:
+        msg_final[user] = ''
+        for dt in msg[user]:
+            msg_final[user] += msg[user][dt]
+
+    return msg_final
