@@ -14,8 +14,14 @@ from twilio.rest import Client
 def send_sms(message,phone_var):
     load_dotenv(dotenv_path=sys.path[-1]+'/twilio.env')
 
-    account_sid = os.environ['TWILIO_ACCOUNT_SID']
-    auth_token = os.environ['TWILIO_AUTH_TOKEN']
+    try:
+        account_sid = os.environ['TWILIO_ACCOUNT_SID']
+        auth_token = os.environ['TWILIO_AUTH_TOKEN']
+    except:
+        load_dotenv(dotenv_path=sys.path[-2]+'/twilio.env')
+        account_sid = os.environ['TWILIO_ACCOUNT_SID']
+        auth_token = os.environ['TWILIO_AUTH_TOKEN']
+                
     client = Client(account_sid, auth_token)
 
     message = client.messages \

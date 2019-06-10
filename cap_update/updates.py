@@ -23,7 +23,7 @@ class GameToday():
         self.user_data = user_data_team_details()
         self.today_date = datetime.datetime.now()
         self.all_games = get_teams_games(self.user_data)
-        #self.run_all_jobs()
+        self.run_all_jobs()
 
 
     def run_all_jobs(self):

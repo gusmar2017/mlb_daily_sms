@@ -55,8 +55,6 @@ def get_game_details(game,user_data):
         get_game_team_data(game,'home',user_data,game_details['status'])
     game_details['away_team'] =\
         get_game_team_data(game,'away',user_data,game_details['status'])
-    game_details['yesterday'] = _check_yesterday_game(
-                        game_details['gametime'].strftime('%Y-%m-%d'))
 
     return game_details
 
