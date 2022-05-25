@@ -2,7 +2,7 @@ certifi==2019.3.9
 chardet==3.0.4
 idna==2.8
 MLB-StatsAPI==0.0.8
-PyJWT==1.7.1
+PyJWT==2.4.0
 PySocks==1.7.0
 python-dateutil==2.8.0
 python-dotenv==0.10.2
